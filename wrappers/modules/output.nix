@@ -34,6 +34,12 @@ with lib; {
       description = "Neovim to use for NixVim.";
     };
 
+    styleInit = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Style the `init.lua` file.";
+    };
+
     wrapRc = mkOption {
       type = types.bool;
       description = "Should the config be included in the wrapper script.";
@@ -115,7 +121,17 @@ with lib; {
       ''
       + config.content;
 
-    init = pkgs.writeText "init.lua" customRC;
+    initRaw = pkgs.writeText "init.lua" customRC;
+    initStyled =
+      pkgs.runCommand "init.lua" {
+        buildInputs = [pkgs.stylua];
+      } ''
+        cat ${initRaw} | stylua - > $out
+      '';
+    init =
+      if config.styleInit
+      then initStyled
+      else initRaw;
     initPath = toString init;
 
     extraWrapperArgs = builtins.concatStringsSep " " (
