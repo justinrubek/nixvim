@@ -18,13 +18,6 @@ rec {
     name: text:
     pkgs.runCommand name { inherit text; } ''
       echo -n "$text" > "$out"
-
-      ${lib.getExe pkgs.stylua} \
-        --no-editorconfig \
-        --line-endings Unix \
-        --indent-type Spaces \
-        --indent-width 4 \
-        "$out"
     '';
 
   /*
